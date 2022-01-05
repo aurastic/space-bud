@@ -1,7 +1,7 @@
 ---
 layout: page
 title: "Blog"
-permalink: /blog/
+permalink: https://aurastic.github.io/space-bud/blog/
 ---
 
 meow
