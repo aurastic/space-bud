@@ -1,7 +1,6 @@
 # Space Bud ~ ![image](https://user-images.githubusercontent.com/67746675/148153092-5e0789ba-4f2d-4765-a6f2-a2d5d28baf22.png) ![image](https://user-images.githubusercontent.com/67746675/148153527-7c31477b-2673-465a-b46d-a9c2ffbd4e72.png)
 
 
-
 Space Bud is my current game development project built on the Unity Engine. It's a dispensary simulation game that lives on Mars, and the main objectives are to survive until the end of the shift while dealing with unpredictable patients (who are sometimes human, sometimes alien!). It'll offer users the experience of managing a dispensary, its employees, and more, all on the surface of Mars.
 
 I've dedicated over 90 hours to this project so far, and I'm excited for its completion!
