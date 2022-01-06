@@ -17,7 +17,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-
 using UnityEngine;
 
 namespace BudShopData
@@ -27,6 +26,7 @@ namespace BudShopData
         [SerializeField] private NewPatientListObject newPatientList;
         [SerializeField] private NewPatientListObject queueList;
         [SerializeField] private IntegerObject newPatientCount;
+        [SerializeField] private IntegerObject queueCount;
 
         private void Start()
         {
@@ -40,19 +40,16 @@ namespace BudShopData
             var patient = newPatientList.patientObjectsList[0];
 
 
-            queueList.patientObjectsList.Add(newPatientList.patientObjectsList[0]);
-            queueList.UpdateListData("Queue List");
+            queueList.patientObjectsList.Add(patient);
+            queueList.UpdateListData(queueList);
 
-            newPatientList.patientObjectsList.Remove(newPatientList.patientObjectsList[0]);
-            newPatientList.UpdateListData("New Patient List");
+            newPatientList.patientObjectsList.Remove(patient);
+            newPatientList.UpdateListData(newPatientList);
 
 
             newPatientCount.value -= 1;
 
-
-
         }
-
 
         public void RemoveFromQueue()
         {
@@ -60,6 +57,11 @@ namespace BudShopData
 
         }
 
+        private void OnApplicationQuit()
+        {
+            newPatientCount.value = 0;
+            queueCount.value = 0;
+        }
     }
 
 }

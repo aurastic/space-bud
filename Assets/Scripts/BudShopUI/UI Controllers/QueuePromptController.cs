@@ -37,13 +37,15 @@ namespace BudShopUI
         [SerializeField] private GameEvent canceledCheckIn;
         [SerializeField] private GameEvent updateUI;
 
-
+       
         private PatientStateData currentStateManager;
+        private NewPatientTimer currentPatienceTimer;
 
 
         [SerializeField] private NewPatientListObject newPatientList;
-        [SerializeField] private NewPatientListObject queueList;
+    
         [SerializeField] private IntegerObject maxQueueListCountObject;
+        [SerializeField] private IntegerObject queueListCountObj;
 
         private SwitchPanelsStatic _panelSwitcher;
         private GameObject _gameObject;
@@ -73,16 +75,21 @@ namespace BudShopUI
 
         public void OpenCheckInPrompt()
         {
-            if (newPatientList.patientObjectsList != null && queueList.patientObjectsList.Count <= maxQueueListCountObject.value)
+            if (newPatientList.patientObjectsList != null && queueListCountObj.value < maxQueueListCountObject.value)
             {
                 Debug.Log("test");
-
+                
+                
                 _panelSwitcher.SwitchPanels(_gameObject, true);
 
                 var activePatient = newPatientList.activePatient;
                 currentStateManager = activePatient.GetComponent<PatientStateData>();
-                var patientName = activePatient.GetComponent<PatientInformationBase>().patientName;
 
+                currentPatienceTimer = activePatient.GetComponent<NewPatientTimer>();
+                currentPatienceTimer.isTimerOn = false;
+
+                var patientName = activePatient.GetComponent<PatientInformationBase>().patientName;
+                
                 patientNameText.text = "Add " + patientName + " to queue?";
 
 
@@ -96,6 +103,8 @@ namespace BudShopUI
 
         public void ExitCheckInPrompt()
         {
+            currentPatienceTimer.isTimerOn = true;
+            currentPatienceTimer.StartTimer();
             canceledCheckIn.RaiseEvent();
             currentStateManager.SwitchState(SaleState.NewPatientState);
             _panelSwitcher.DeactivatePanel(_gameObject, true);
@@ -103,6 +112,7 @@ namespace BudShopUI
 
         public void CompleteCheckIn()
         {
+            queueListCountObj.value++;
             checkInComplete.RaiseEvent();
             updateUI.RaiseEvent();
             currentStateManager.SwitchState(SaleState.CheckedInState);

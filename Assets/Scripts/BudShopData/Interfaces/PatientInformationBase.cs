@@ -23,7 +23,7 @@ namespace BudShopData
 {
     public class PatientInformationBase : MonoBehaviour, PatientInformationManager
     {
-        public string patientName;
+        public string patientName;  //is there a way to make these both private and accessible by only what's needed?
         public StrainType favoriteStrain;
         public PatientType patientType;
         public string[] femaleNames = new string[6] { "Emma", "Jessica", "Amanda", "Flora", "Mary", "Melissa" };
@@ -95,7 +95,7 @@ namespace BudShopData
             }
             else
             {
-                patientType = (PatientType)(Random.Range(0, values.Length - 1));
+                patientType = (PatientType)(Random.Range(0, values.Length - 1));  //this needs to be fixed, senior might not be last on the patient types list.
             }
 
 

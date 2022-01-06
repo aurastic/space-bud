@@ -38,7 +38,8 @@ namespace BudShopPatient
 
         // [SerializeField] private ObjectScriptableObject activePatient;
 
-        private int spawnDelay;
+        
+        private int waitToSpawn = 20; // check if a new pt can be added every 20 seconds.
 
         private readonly int minDownTime = 5;
         private readonly int maxDownTime = 10;
@@ -60,6 +61,7 @@ namespace BudShopPatient
         {
             if (newPatients.value < newPatientListMaxCount.value)
             {
+                Debug.Log("spawn possible. will spawn after random time.");
                 var time = Random.Range(minDownTime, maxDownTime);
                 Invoke("SpawnNewPatient", time);
             }
@@ -77,36 +79,53 @@ namespace BudShopPatient
 
             if (patient != null)
             {
-                patient.transform.position = spawnLocation;
-                patient.transform.rotation = Quaternion.identity;
+                patient.transform.SetPositionAndRotation(spawnLocation, Quaternion.identity);
                 patient.SetActive(true);
+
                 var patientCard = patient.GetComponent<PatientInformationBase>();
-                var patientStateManager = patient.GetComponent<PatientStateData>();
-                var timer = patient.GetComponent<NewPatientTimer>();
-                spawnedPatients.patientObjectsList.Add(patient);
                 Debug.Log(patientCard.patientName + ", " + patientCard.gender + ", " + patientCard.age + ", " + patientCard.patientType + ", " + patientCard.favoriteStrain);
-                spawnedPatients.UpdateListData("New Patient List");
+
+                var patientStateManager = patient.GetComponent<PatientStateData>();
                 patientStateManager.SwitchState(SaleState.NewPatientState);
+
+                var timer = patient.GetComponent<NewPatientTimer>();
                 timer.StartCoroutine(timer.PatientPatience());
-                spawnDelay = Random.Range(minDownTime, maxDownTime);
+                spawnedPatients.patientObjectsList.Add(patient);
+                spawnedPatients.UpdateListData(spawnedPatients);
+
+                
 
                 AddNewPatientValue();
 
                 newpatientEvent.RaiseEvent();
                 updateUI.RaiseEvent();
 
-                if (newPatients.value < newPatientListMaxCount.value)
-                {
-                    Invoke("SpawnNewPatient", spawnDelay);
-                }
+                StartCoroutine(WaitToSpawn());
+                
             }
+
             else
             {
-                Debug.Log("no more in pool");
+                Debug.Log("No more in pool");
             }
 
 
 
+        }
+
+        IEnumerator WaitToSpawn()
+        {
+            while (waitToSpawn >= 0)
+            {
+                Debug.Log("spawn wait" + waitToSpawn);
+                waitToSpawn--;
+                yield return new WaitForSeconds(1);
+            }
+
+            waitToSpawn = 20;
+            Debug.Log("sent request to start spawning if possible");
+            StartSpawning();
+            yield break;
         }
 
         private void AddNewPatientValue()
@@ -117,8 +136,9 @@ namespace BudShopPatient
 
         private void OnApplicationQuit()
         {
-            newPatients.value = 0;
+            StopAllCoroutines();
         }
+
     }
 }
 

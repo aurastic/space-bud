@@ -24,7 +24,7 @@ namespace BudShopArt
 {
     public class ObjectColorManager : MonoBehaviour
     {
-        [SerializeField] GameObject patientMesh;
+        [SerializeField] private GameObject patientMesh;
 
         private void OnEnable()
         {

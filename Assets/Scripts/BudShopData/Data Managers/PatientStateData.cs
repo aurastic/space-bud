@@ -42,7 +42,7 @@ namespace BudShopData
 
         public SaleState currentState = SaleState.HiddenInPoolState;
         public MoodState currentMood = MoodState.Happy;
-        public GameEvent stateUpdate;
+        [SerializeField] private GameEvent stateUpdate;
         
 
         public void SwitchState(SaleState state)

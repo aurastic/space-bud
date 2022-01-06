@@ -30,7 +30,7 @@ namespace BudShopData
         public GameObject activePatient;
         public string activePatientName;
 
-        public void UpdateListData(string listID)
+        public void UpdateListData(NewPatientListObject list)
         {
 
             patientInformationList.Clear();
@@ -38,7 +38,7 @@ namespace BudShopData
 
             if (patientObjectsList.Count > 0)
             {
-                Debug.Log(listID + "count: " + patientObjectsList.Count);
+                Debug.Log(list + "count: " + patientObjectsList.Count);
 
                 for (int i = 0; i < patientObjectsList.Count; i++)
                 {
