@@ -26,7 +26,10 @@ namespace SpaceBudUI
 
         private ListView _actionLogList;
        
-
+        public void RefreshActionLog()
+        {
+            _actionLogList.Refresh();
+        }
         public void InitializeActionLog(VisualElement rootElement, VisualTreeAsset listElementTemplate, ActionLogObject logData)
         {
             _actionLogTemplate = listElementTemplate;

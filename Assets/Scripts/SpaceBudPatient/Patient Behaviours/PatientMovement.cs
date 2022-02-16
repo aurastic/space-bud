@@ -18,6 +18,8 @@
 using UnityEngine;
 using UnityEngine.AI;
 using SpaceBudData;
+using SpaceBudCore;
+using System.Collections;
 
 namespace SpaceBudPatient
 {
@@ -25,50 +27,76 @@ namespace SpaceBudPatient
     {
         private NavMeshAgent patientAgent;
         private WanderAI wanderWalk;
-
+        private Vector3 shopExit;
         private PatientStateData stateManager;
+        private int waitToDisappear;
 
         private void OnEnable()
         {
+            waitToDisappear = 5;
+            shopExit = new Vector3(-5.8f, 0.5f, 9.5f);
             patientAgent = gameObject.GetComponent<NavMeshAgent>();
             wanderWalk = gameObject.GetComponent<WanderAI>();
             stateManager = gameObject.GetComponent<PatientStateData>();
+
+            PatientSaleEventManager.OnSaleStateChange += UpdateMovementType;
+        }
+
+        private void OnDisable()
+        {
+            PatientSaleEventManager.OnSaleStateChange -= UpdateMovementType;
         }
 
         public void UpdateMovementType()
         {
             if (stateManager.currentState == SaleState.PendingCheckInState)
             {
-                StopWandering();
+                wanderWalk.isWandering = false;
+                
             }
 
-            if (stateManager.currentState == SaleState.NewPatientState)
+            else if (stateManager.currentState == SaleState.NewPatientState)
             {
-                ResumeWandering();
+                wanderWalk.isWandering = true;
+                wanderWalk.StartCoroutine(wanderWalk.WanderCoroutine());
             }
 
-            if (stateManager.currentState == SaleState.CheckedInState)
+            else if (stateManager.currentState == SaleState.CheckedInState)
             {
-                StopWandering();
-                patientAgent.enabled = true;
+                wanderWalk.isWandering = false;
                 patientAgent.destination = new Vector3(0, 1, Random.Range(5, 7));
 
             }
+
+            else if (stateManager.currentState == SaleState.LeavingState)
+            {
+                wanderWalk.isWandering = false;
+                patientAgent.destination = shopExit;
+                StartCoroutine(PatientLeavingCoroutine());
+            }
         }
 
-        public void StopWandering()
+        private IEnumerator PatientLeavingCoroutine()
         {
-            wanderWalk.enabled = false;
+
+            while(waitToDisappear > 0)
+            {
+                waitToDisappear--;
+                Debug.Log(waitToDisappear);
+                yield return new WaitForSeconds(1);
+            }
+
+            HidePatient();
+            yield break;
         }
 
-        public void ResumeWandering()
+        private void HidePatient()
         {
-            wanderWalk.enabled = true;
+            StopAllCoroutines();
+            stateManager.SwitchState(SaleState.HiddenInPoolState);
+            Debug.Log("Patient reached exit. Leaving.");
+            gameObject.SetActive(false);
         }
-
-
-
-
     }
 }
 

@@ -31,15 +31,13 @@ namespace SpaceBudData
         private int patience;
         [SerializeField] private IntegerObject newPatients;
         [SerializeField] private NewPatientListObject spawnedPatients;
+        [SerializeField] private ActionLogObject logObject;
+        private PatientStateData stateManager;
 
-        [SerializeField] private GameEvent updateUI;
-        [SerializeField] private GameEvent patientLeftEarly;
-
-       
-      
         private void OnEnable()
         {
-            patientName = this.gameObject.GetComponent<PatientInformationBase>().patientName;
+            patientName = gameObject.GetComponent<PatientInformationBase>().patientName;
+            stateManager = gameObject.GetComponent<PatientStateData>();
             patience = Random.Range(10, 60);
             
         }
@@ -51,7 +49,7 @@ namespace SpaceBudData
             while (isTimerOn && patience > 0)
             {
                 patience--;
-                Debug.Log(patience);
+                //Debug.Log(patience);
                 
                 yield return new WaitForSeconds(1);
             }
@@ -72,15 +70,16 @@ namespace SpaceBudData
         void PatienceRanOut(string ptName)
         {
             StopCoroutine(PatientPatience());
-            Debug.Log("I've been waiting too long!!!! BYE ");
-           
-            Debug.Log(ptName + " left.");
+            var actionLogEntry = new ActionLogEntry(5, LogEntryType.Review, "I've been waiting too long!!!! BYE ", ptName);
+            logObject.actionLog.Add(actionLogEntry);
             newPatients.value--;
-            spawnedPatients.patientObjectsList.Remove(this.gameObject);
+            spawnedPatients.patientObjectsList.Remove(gameObject);
             spawnedPatients.UpdateListData(spawnedPatients);
-            patientLeftEarly.RaiseEvent();
-            updateUI.RaiseEvent();
-            this.gameObject.SetActive(false);
+            PatientSaleEventManager.PatientLeftEarly();
+            UIEventsManager.GameOverlayNeedsUpdate();
+            UIEventsManager.ActionLogNeedsUpdate();
+            stateManager.SwitchState(SaleState.LeavingState);
+           
 
         }
 

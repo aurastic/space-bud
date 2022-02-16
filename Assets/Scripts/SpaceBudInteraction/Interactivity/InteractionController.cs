@@ -16,23 +16,29 @@
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using SpaceBudCore;
-
+using SpaceBudData;
 
 namespace SpaceBudInteraction
 {
     public class InteractionController : MonoBehaviour
     {
-        private NavMeshAgent playerAgent;
+   
         private GameplayInputController controls;
-        [SerializeField] private GameObject player;
+        private CharacterController characterController;
+        private Vector2 leftJoyValue;
+        [SerializeField] private Camera myCamera;
+        private Transform cameraTransform;
+        private int selectedIndex;
+        private bool isInteractionInFocus;
 
-        public void OnEnable()
+        [SerializeField] private NearbyInteractionsListObject nearbyCollidersObject;
+
+        private void OnEnable()
         {
-            playerAgent = GetComponent<NavMeshAgent>();
+            characterController = GetComponent<CharacterController>();
             InputSystem.onDeviceChange += (device, change) =>
             {
                 switch (change)
@@ -49,49 +55,165 @@ namespace SpaceBudInteraction
 
         }
 
-        public void Start()
+        private void Start()
         {
             controls = InputSystemController.controls;
             controls.Gameplay.Enable();
-            controls.Gameplay.Click.performed += _ => Click();
+            cameraTransform = myCamera.transform;
             controls.Gameplay.RightClick.performed += _ => RightClick();
+            controls.Gameplay.Click.performed += _ => SelectInteraction();
+            controls.Gameplay.Move.performed += ctx => leftJoyValue = ctx.ReadValue<Vector2>();
+            controls.Gameplay.Move.canceled += ctx => leftJoyValue = Vector2.zero;
+            controls.Gameplay.LeftShoulder.performed += _ => SwapFocusLeft();
+            controls.Gameplay.RightShoulder.performed += _ => SwapFocusRight();
             
         }
 
-        public void OnDisable()
+        private void OnDisable()
         {
             controls.Disable();
         }
 
-        public void Click()
-        {
-            Ray interactionRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            //Physics.Raycast(interactionRay, out interactionData, Mathf.Infinity);
 
-            if (Physics.Raycast(interactionRay, out RaycastHit interactionData, Mathf.Infinity))
-            {
-                PatientInteractiveBase interactiveItemInstance = interactionData.transform.GetComponent<PatientInteractiveBase>();
-                Vector3 interactiveItemPos = interactionData.collider.transform.position;
-
-                if (interactiveItemInstance == null)
-                {
-
-                    playerAgent.destination = interactionData.point;
-
-                }
-                else
-                {
-                    playerAgent.destination = interactiveItemPos + new Vector3(-0.5f, 0, 3);
-                    interactiveItemInstance.OnInteract();
-
-                }
-            }
-        }
         public void RightClick()
         {
             SceneManager.LoadScene("Start Menu Scene");
         }
 
+        private void Update()
+        {
+            var moveVector = cameraTransform.right * leftJoyValue.x + cameraTransform.forward * leftJoyValue.y;
+            var moveVectorFlat = new Vector3(moveVector.x, 0, moveVector.z);
+            characterController.Move(moveVectorFlat * Time.deltaTime * 5);
+            if (moveVector != Vector3.zero)
+            {
+                transform.forward = moveVectorFlat;
+            }
+
+
+        }
+
+        private void SelectInteraction()
+        {
+            if(isInteractionInFocus)
+            {
+                var interactiveBase = nearbyCollidersObject.list[selectedIndex].gameObject.GetComponent<PatientInteractiveBase>();
+
+                if (interactiveBase != null)
+                {
+                    interactiveBase.OnInteract();
+                }
+            }
+
+            else
+            {
+                Debug.Log("Nothing to interact with.");
+            }
+          
+        }
+
+        public void OnTriggerEnter(Collider other)
+        {
+            var t = other.gameObject.GetComponent<Transform>();
+            nearbyCollidersObject.list.Add(t);
+            InteractionEventManager.CollidedWithInteraction(t);
+
+            if(!isInteractionInFocus)
+            {
+                FocusOnFirstCollider(t);
+                Debug.Log("Starting focus.");
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            var t = other.gameObject.GetComponent<Transform>();
+            nearbyCollidersObject.list.Remove(t);
+            InteractionEventManager.ColliderMovedAway(t);
+
+            if(nearbyCollidersObject.list.Count == 0)
+            {
+                isInteractionInFocus = false;
+                Debug.Log("Focus list is empty.");
+            }
+        }
+
+        private void FocusOnFirstCollider(Transform t)
+        {
+            if (nearbyCollidersObject.list.Count > 0)
+            {
+                selectedIndex = 0;
+                isInteractionInFocus = true;
+                t.gameObject.GetComponent<InteractionVisualCueManager>().ToggleImage();
+                InteractionEventManager.SelectionChanged(nearbyCollidersObject.list[selectedIndex]);
+            }
+        }
+
+        private void SwapFocusRight()
+        {
+            
+
+            var listCount = nearbyCollidersObject.list.Count;
+
+            if (isInteractionInFocus && listCount > 1)
+            {
+                Debug.Log("Swapping current target.");
+
+                if (selectedIndex < listCount - 1)
+                {
+                    selectedIndex++;
+                    InteractionEventManager.SelectionChanged(nearbyCollidersObject.list[selectedIndex]);
+
+                }
+
+                else if (selectedIndex == listCount - 1)
+                {
+                    selectedIndex = 0;
+                    InteractionEventManager.SelectionChanged(nearbyCollidersObject.list[selectedIndex]);
+                }
+
+                
+            }
+
+            else
+            {
+                Debug.Log("Nothing to swap focus with.");
+            }
+        }
+
+        private void SwapFocusLeft()
+        {
+            var listCount = nearbyCollidersObject.list.Count;
+
+            if (isInteractionInFocus && listCount > 1)
+            {
+                Debug.Log("Swapping current target.");
+
+                if (selectedIndex > 0)
+                {
+                    selectedIndex--;
+                    InteractionEventManager.SelectionChanged(nearbyCollidersObject.list[selectedIndex]);
+                }
+
+                else if (selectedIndex == 0)
+                {
+                    selectedIndex = listCount - 1;
+                    InteractionEventManager.SelectionChanged(nearbyCollidersObject.list[selectedIndex]);
+                }
+
+                
+            }
+
+            else
+            {
+                Debug.Log("Nothing to swap focus with.");
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            nearbyCollidersObject.list.Clear();
+        }
     }
 }
 

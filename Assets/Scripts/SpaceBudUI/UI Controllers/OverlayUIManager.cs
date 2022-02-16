@@ -18,6 +18,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using SpaceBudData;
+using SpaceBudCore;
 
 
 namespace SpaceBudUI
@@ -37,9 +38,11 @@ namespace SpaceBudUI
 
         private PanelSwitcher _panelSwitcher;
         private VisualElement _rootVisualElement;
-        
+        private ActionLogListController actionLogListController;
+
         [SerializeField] private VisualTreeAsset actionLogEntryTemplate;
         [SerializeField] private ActionLogObject logObject;
+
 
         private void Awake()
         {
@@ -54,19 +57,24 @@ namespace SpaceBudUI
             patientCountLabel = _rootVisualElement.Q<Label>("new-pt-count");
             shopFundsLabel = _rootVisualElement.Q<Label>("shop-funds-count");
             shopStateLabel = _rootVisualElement.Q<Label>("shop-state-label");
-
-
             gameMenuButton = _rootVisualElement.Q<Button>("game-menu-button");
 
 
-            gameMenuButton.RegisterCallback<ClickEvent>(ev => _panelSwitcher.SwitchPanels(gameMenu, false)); //no unity event needed since click event sends message
+            gameMenuButton.RegisterCallback<ClickEvent>(ev => _panelSwitcher.SwitchPanels(gameMenu, false)); 
 
-            var actionLogListController = new ActionLogListController();
+            actionLogListController = new ActionLogListController();
             actionLogListController.InitializeActionLog(_rootVisualElement, actionLogEntryTemplate, logObject);
 
             UpdateValues();
 
-           
+            UIEventsManager.OnGameOverlayUpdate += UpdateValues;
+            UIEventsManager.OnAddToActionLog += UpdateActionLog;
+        }
+
+        private void OnDisable()
+        {
+            UIEventsManager.OnGameOverlayUpdate -= UpdateValues;
+            UIEventsManager.OnAddToActionLog -= UpdateActionLog;
         }
 
         private void UpdateValues()
@@ -74,6 +82,11 @@ namespace SpaceBudUI
             shopFundsLabel.text = "$ " + fundsCount.value.ToString();
             shopStateLabel.text = "TBD";
             patientCountLabel.text = patientCount.value.ToString();
+        }
+
+        private void UpdateActionLog()
+        {
+            actionLogListController.RefreshActionLog();
         }
     }
 }

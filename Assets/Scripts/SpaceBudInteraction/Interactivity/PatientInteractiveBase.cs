@@ -25,13 +25,12 @@ namespace SpaceBudInteraction
     public class PatientInteractiveBase : MonoBehaviour, IInteractive
     {
         private PatientStateData stateManager;
-        public GameEvent clickedOnPatient;
-
+       
         [SerializeField] private NewPatientListObject newPatientList;
 
         public void OnEnable()
         {
-            stateManager = this.GetComponent<PatientStateData>();
+            stateManager = GetComponent<PatientStateData>();
         }
 
         public void OnInteract()
@@ -40,7 +39,7 @@ namespace SpaceBudInteraction
             {
                 if (stateManager.currentState == SaleState.NewPatientState && this.gameObject == newPatientList.activePatient)
                 {
-                    clickedOnPatient.RaiseEvent();
+                    PatientSaleEventManager.ClickedOnPatient();
                     stateManager.SwitchState(SaleState.PendingCheckInState);
 
                 }

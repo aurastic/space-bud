@@ -15,9 +15,8 @@
 //You should have received a copy of the GNU General Public
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using SpaceBudCore;
 
 namespace SpaceBudArt
 {
@@ -31,10 +30,15 @@ namespace SpaceBudArt
         private void OnEnable()
         {
             doorAnimator = door.GetComponent<Animator>();
-
+            PatientSaleEventManager.OnNewPatient += OpenDoors;
         }
 
-        public void openDoors()
+        private void OnDisable()
+        {
+            PatientSaleEventManager.OnNewPatient -= OpenDoors;
+        }
+
+        public void OpenDoors()
         {
             doorAnimator.Play("opening");
 

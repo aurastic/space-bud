@@ -17,6 +17,7 @@
 
 using Cinemachine;
 using UnityEngine;
+using SpaceBudCore;
 using SpaceBudData;
 
 namespace SpaceBudCamera
@@ -25,28 +26,47 @@ namespace SpaceBudCamera
     {
         private Animator animator;
 
-        //[SerializeField] private GameObject patientCam;
+        private CinemachineTargetGroup checkInTargetGroup;
+        private CinemachineTargetGroup interactionTargetGroup;
 
+        [SerializeField] private GameObject checkInTargetGroupObject;
+        [SerializeField] private GameObject interactionTargetGroupObject;
 
-        private CinemachineTargetGroup targetGroup;
-        [SerializeField] private GameObject targetGroupObject;
         [SerializeField] private NewPatientListObject newPatientList;
+        
 
         private void Awake()
         {
-            animator = this.GetComponent<Animator>();
+            checkInTargetGroup = checkInTargetGroupObject.GetComponent<CinemachineTargetGroup>();
+            interactionTargetGroup = interactionTargetGroupObject.GetComponent<CinemachineTargetGroup>();
+
+            animator = GetComponent<Animator>();
+        }
+
+        private void OnEnable()
+        {
+            PatientSaleEventManager.OnCheckIn += IdleCamera;
+            PatientSaleEventManager.OnCancelCheckIn += IdleCamera;
+            PatientSaleEventManager.OnOpenCheckInPrompt += PatientInteractionCamera;
+            InteractionEventManager.onCollidedWithInteraction += t => AddColliderToTargetGroup(t);
+            InteractionEventManager.onUndoCollision += t => RemoveColliderFromTargetGroup(t);
+            InteractionEventManager.onSelectionChange += t => FocusOnSelection(t);
+        }
+
+        private void OnDisable()
+        {
+            PatientSaleEventManager.OnCheckIn -= IdleCamera;
+            PatientSaleEventManager.OnCancelCheckIn -= IdleCamera;
+            PatientSaleEventManager.OnOpenCheckInPrompt -= PatientInteractionCamera;
+            InteractionEventManager.onCollidedWithInteraction -= t => AddColliderToTargetGroup(t);
+            InteractionEventManager.onUndoCollision -= t => RemoveColliderFromTargetGroup(t);
         }
 
         public void PatientInteractionCamera()
         {
-            targetGroup = targetGroupObject.GetComponent<CinemachineTargetGroup>();
-            targetGroup.AddMember(newPatientList.activePatient.transform, 1, 0.5f);
-            // var vcam = patientCam.GetComponent<CinemachineVirtualCamera>();
-            // vcam.LookAt = targetGroup.transform;
-            //vcam.Follow = targetGroup.transform;
+            
+            checkInTargetGroup.AddMember(newPatientList.activePatient.transform, 1, 0.5f);
             animator.Play("patient interaction");
-
-
         }
 
         public void IdleCamera()
@@ -58,8 +78,26 @@ namespace SpaceBudCamera
 
         public void ClearTarget(Transform target)
         {
-            targetGroup.RemoveMember(target);
+            checkInTargetGroup.RemoveMember(target);
         }
+
+        public void AddColliderToTargetGroup(Transform t)
+        {
+            interactionTargetGroup.AddMember(t, 1f, 1f);
+        }
+
+        public void RemoveColliderFromTargetGroup(Transform t)
+        {
+            interactionTargetGroup.RemoveMember(t);
+        }
+
+        private void FocusOnSelection(Transform t)
+        {
+            //interactionTargetGroup.AddMember(t, 2f, 0.5f);
+
+        }
+
+
 
     }
 }

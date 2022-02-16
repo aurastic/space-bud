@@ -15,8 +15,6 @@
 //You should have received a copy of the GNU General Public
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using SpaceBudCore;
 
@@ -35,26 +33,18 @@ namespace SpaceBudData
     {
         Happy = 0,
     }
-
    
     public class PatientStateData : MonoBehaviour
     {
-
         public SaleState currentState = SaleState.HiddenInPoolState;
         public MoodState currentMood = MoodState.Happy;
-        [SerializeField] private GameEvent stateUpdate;
         
-
         public void SwitchState(SaleState state)
         {
             currentState = state;
-            stateUpdate.RaiseEvent();
+            PatientSaleEventManager.SaleStateChanged();
 
         }
-
-     
     }
-
-
 }
 

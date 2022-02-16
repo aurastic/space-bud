@@ -19,52 +19,78 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-using SpaceBudCore;
+using SpaceBudPlayerData;
 
 namespace SpaceBudUI
 {
     public class AppearancePanelController : MonoBehaviour
     {
         private Button closePanelButton;
-        [SerializeField] private GameObject player;
-        private GameplayInputController controls;
+        [SerializeField] private VisualTreeAsset appearanceListEntryTemplate;
+        private PanelSwitcher _panelSwitcher;
+        private VisualElement _rootVisualElement;
+        private AppearanceListController _listController;
 
+        private Button hatsButton;
+        private Button skinButton;
+        private Button faceButton;
 
-        private void OnEnable()
+        private List<AppearanceProfile> hatProfiles;
+        private List<AppearanceProfile> skinProfiles;
+        private List<AppearanceProfile> faceProfiles;
+
+        private List<AppearanceProfile> currentList;
+
+        private void Awake()
         {
-            controls = InputSystemController.controls;
-            closePanelButton = this.gameObject.GetComponent<UIDocument>().rootVisualElement.Q<Button>("back-button");
-            closePanelButton.RegisterCallback<ClickEvent>(ev => ClosePanel());
+            currentList = hatProfiles;
+            
+            _panelSwitcher = GetComponent<PanelSwitcher>();
+            
+            EnumerateAllProfiles();
+        }
+        public void OnEnable()
+        {
+            _rootVisualElement = GetComponent<UIDocument>().rootVisualElement;
+
+            _listController = new AppearanceListController();
+            _listController.InitializeAppearanceList(_rootVisualElement, appearanceListEntryTemplate, currentList);
+            
+            closePanelButton = _rootVisualElement.Q<Button>("back-button");
+            closePanelButton.RegisterCallback<ClickEvent>(ev => _panelSwitcher.DeactivatePanel(gameObject, true));
+
+            hatsButton = _rootVisualElement.Q<Button>("hats");
+            hatsButton.RegisterCallback<ClickEvent>(ev => SwitchAppearanceTab(hatProfiles));
+
+            skinButton = _rootVisualElement.Q<Button>("skin");
+            skinButton.RegisterCallback<ClickEvent>(ev => SwitchAppearanceTab(skinProfiles));
+
+            faceButton = _rootVisualElement.Q<Button>("face");
+            faceButton.RegisterCallback<ClickEvent>(ev => SwitchAppearanceTab(faceProfiles));
 
         }
-        void Start()
+        private void Start()
         {
-            this.gameObject.SetActive(false);
+           gameObject.SetActive(false);
         }
 
-        private void ClosePanel()
+        private void EnumerateAllProfiles()
         {
-            SwitchActionMapToGameplay();
-            this.gameObject.SetActive(false);
+            hatProfiles = new List<AppearanceProfile>();
+            hatProfiles.AddRange(Resources.LoadAll<AppearanceProfile>("Hats"));
+
+            skinProfiles = new List<AppearanceProfile>();
+            skinProfiles.AddRange(Resources.LoadAll<AppearanceProfile>("Skin"));
+
+            faceProfiles = new List<AppearanceProfile>();
+            faceProfiles.AddRange(Resources.LoadAll<AppearanceProfile>("Face"));
 
         }
-        public void SwitchActionMapToUI()
+
+        private void SwitchAppearanceTab(List<AppearanceProfile> currentList)
         {
-            if (!controls.UI.enabled)
-            {
-                controls.Gameplay.Disable();
-                controls.UI.Enable();
-                //Debug.Log("switched to UI controls");
-            }
-        }
-        public void SwitchActionMapToGameplay()
-        {
-
-            controls.UI.Disable();
-            controls.Gameplay.Enable();
-            //Debug.Log("switched to gameplay controls");
-
-
+            this.currentList = currentList;
+            _listController.InitializeAppearanceList(_rootVisualElement, appearanceListEntryTemplate, currentList);
         }
     }
 

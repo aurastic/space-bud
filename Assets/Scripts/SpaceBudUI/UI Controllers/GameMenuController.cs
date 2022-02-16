@@ -22,7 +22,6 @@ namespace SpaceBudUI
 {
     public class GameMenuController : MonoBehaviour
     {
-
         private Button appearance;
         private Button queue;
         private Button exit;
@@ -39,7 +38,8 @@ namespace SpaceBudUI
             _panelSwitcher = GetComponent<PanelSwitcher>();
             _gameObject = gameObject;
         }
-        public void OnEnable()
+
+        private void OnEnable()
         {
             _rootVisualElement = GetComponent<UIDocument>().rootVisualElement;
             

@@ -28,18 +28,14 @@ namespace SpaceBudUI
         private void Awake()
         {
             controls = InputSystemController.controls;
-
         }
         public void SwitchPanels(GameObject panelObj, bool overridesGameControls)
         {
-
             panelObj.SetActive(true);
-           
 
             if (overridesGameControls)
             {
                 SwitchActionMapToUI();
-
             }
 
             else
@@ -53,10 +49,9 @@ namespace SpaceBudUI
 
                     element.RegisterCallback<MouseLeaveEvent>(ev => SwitchActionMapToGameplay());
                 }
-
-              
             }
         }
+
         public void DeactivatePanel(GameObject panelObj, bool returnControls)
         {
             panelObj.SetActive(false);
@@ -65,26 +60,19 @@ namespace SpaceBudUI
             {
                 SwitchActionMapToGameplay();
             }
-            
         }
-
 
         public void SwitchActionMapToUI()
         {
-           
-                controls.Gameplay.Disable();
-                controls.UI.Enable();
-                //Debug.Log("switched to UI controls");
-            
+            controls.Gameplay.Disable();
+            controls.UI.Enable();
         }
+
         public void SwitchActionMapToGameplay()
         {
             controls.UI.Disable();
             controls.Gameplay.Enable();
-            //Debug.Log("switched to gameplay controls");
-
         }
-
 
         public void DeactivateSubPanel(GameObject panelObj, string panelName)
         {
@@ -92,19 +80,13 @@ namespace SpaceBudUI
             var doc = panelObj.GetComponent<UIDocument>().rootVisualElement;
             doc.Remove(element);
         }
+
         public void ActivateSubPanel(GameObject panelObj, string panelName)
         {
             var element = panelObj.GetComponent<UIDocument>().rootVisualElement.Q<VisualElement>(panelName);
             var doc = panelObj.GetComponent<UIDocument>().rootVisualElement;
             doc.Add(element);
         }
-
-
-
-   
-
-
     }
-
 }
 

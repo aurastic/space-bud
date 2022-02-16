@@ -16,6 +16,7 @@
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
 using UnityEngine;
+using SpaceBudCore;
 
 namespace SpaceBudData
 {
@@ -30,20 +31,27 @@ namespace SpaceBudData
         {
             newPatientList.ClearList();
             queueList.ClearList();
+        }
 
+        private void OnEnable()
+        {
+           PatientSaleEventManager.OnCheckIn += MovePatientToQueue;
+        }
+
+        private void OnDisable()
+        {
+            PatientSaleEventManager.OnCheckIn -= MovePatientToQueue;
         }
 
         public void MovePatientToQueue()
         {
             var patient = newPatientList.patientObjectsList[0];
 
-
             queueList.patientObjectsList.Add(patient);
             queueList.UpdateListData(queueList);
 
             newPatientList.patientObjectsList.Remove(patient);
             newPatientList.UpdateListData(newPatientList);
-
 
             newPatientCount.value -= 1;
 

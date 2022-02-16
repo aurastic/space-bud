@@ -24,21 +24,13 @@ namespace SpaceBudPatient
 {
     public class PatientSpawner : MonoBehaviour
     {
-       
-
         [SerializeField] private IntegerObject newPatients;
 
-
-        [SerializeField] private GameEvent newpatientEvent;
-        [SerializeField] private GameEvent updateUI;
         [SerializeField] private NewPatientListObject spawnedPatients;
 
         [SerializeField] private IntegerObject newPatientListMaxCount;
 
-        // [SerializeField] private ObjectScriptableObject activePatient;
-
-        
-        private int waitToSpawn = 20; // check if a new pt can be added every 20 seconds.
+        private int waitToSpawn = 20; 
 
         private readonly int minDownTime = 5;
         private readonly int maxDownTime = 10;
@@ -47,16 +39,12 @@ namespace SpaceBudPatient
         private readonly float eB = -2f;
         private readonly float wB = -5f;
 
-
-        // Start is called before the first frame update
         private void Start()
         {
-
             Invoke("SpawnNewPatient", 5);
-
         }
 
-        public void StartSpawning()
+        private void StartSpawning()
         {
             if (newPatients.value < newPatientListMaxCount.value)
             {
@@ -65,15 +53,16 @@ namespace SpaceBudPatient
                 Invoke("SpawnNewPatient", time);
             }
 
+            else
+            {
+                StartCoroutine(WaitToSpawn());
+            }
         }
 
         private void SpawnNewPatient()
         {
             var spawnLocation = new Vector3(Random.Range(wB, eB), 1, Random.Range(sB, nB));
-            //int patientTypeIndex = Random.Range(0, patientPrefabs.Length);
-
-
-            // var newPatient = Instantiate(patientPrefabs[patientTypeIndex], spawnLocation, Quaternion.identity);
+            
             GameObject patient = PatientPool.patientPool.GetPooledPatient();
 
             if (patient != null)
@@ -92,24 +81,18 @@ namespace SpaceBudPatient
                 spawnedPatients.patientObjectsList.Add(patient);
                 spawnedPatients.UpdateListData(spawnedPatients);
 
-                
-
                 AddNewPatientValue();
 
-                newpatientEvent.RaiseEvent();
-                updateUI.RaiseEvent();
+                PatientSaleEventManager.NewPatient();
+                UIEventsManager.GameOverlayNeedsUpdate();
 
                 StartCoroutine(WaitToSpawn());
-                
             }
 
             else
             {
                 Debug.Log("No more in pool");
             }
-
-
-
         }
 
         IEnumerator WaitToSpawn()
@@ -130,7 +113,6 @@ namespace SpaceBudPatient
         private void AddNewPatientValue()
         {
             newPatients.value += 1;
-
         }
 
         private void OnApplicationQuit()

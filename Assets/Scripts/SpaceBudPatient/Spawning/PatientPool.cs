@@ -24,11 +24,12 @@ namespace SpaceBudPatient
     public class PatientPool : MonoBehaviour
     {
         public static PatientPool patientPool;
-        public List<GameObject> pooledPatients;
-        public GameObject patientPrefab;
+        private List<GameObject> pooledPatients;
+        [SerializeField] private GameObject patientPrefab;
         private int amountToPool;
         [SerializeField] private IntegerObject queueListMaxCount;
         [SerializeField] private IntegerObject newPatientListMaxCount;
+
         private void Awake()
         {
             patientPool = this;
@@ -36,10 +37,10 @@ namespace SpaceBudPatient
 
         private void Start()
         {
-
             amountToPool = queueListMaxCount.value + newPatientListMaxCount.value;
             pooledPatients = new List<GameObject>();
             GameObject pt;
+
             for (int i = 0; i < amountToPool; i++)
             {
                 pt = Instantiate(patientPrefab);

@@ -15,47 +15,31 @@
 //You should have received a copy of the GNU General Public
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
-using SpaceBudCore;
 
 namespace SpaceBudUI
 {
     public class QueuePanelMainController : MonoBehaviour
     {
         private Button closePanelButton;
-        [SerializeField] private GameObject player;
-        private GameplayInputController controls;
-        // Start is called before the first frame update
-        void Start()
+        private PanelSwitcher _panelSwitcher;
+
+        private void Awake()
         {
-            this.gameObject.SetActive(false);
+            _panelSwitcher = GetComponent<PanelSwitcher>();
+        }
+        private void Start()
+        {
+            gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
-            controls = InputSystemController.controls;
-            closePanelButton = this.gameObject.GetComponent<UIDocument>().rootVisualElement.Q<Button>("back-button");
-            closePanelButton.RegisterCallback<ClickEvent>(ev => ClosePanel());
+            closePanelButton = GetComponent<UIDocument>().rootVisualElement.Q<Button>("back-button");
+            closePanelButton.RegisterCallback<ClickEvent>(ev => _panelSwitcher.DeactivatePanel(this.gameObject, true));
         }
 
-        private void ClosePanel()
-        {
-            SwitchActionMapToGameplay();
-            this.gameObject.SetActive(false);
-
-        }
-        public void SwitchActionMapToGameplay()
-        {
-
-            controls.UI.Disable();
-            controls.Gameplay.Enable();
-            //Debug.Log("switched to gameplay controls");
-
-
-        }
     }
 
 }

@@ -16,7 +16,6 @@
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace SpaceBudPlayerData
 {
@@ -31,7 +30,7 @@ namespace SpaceBudPlayerData
 
     public class AppearanceProfile : ScriptableObject
     {
-        public Image listImage;
+        public Sprite listImage;
         public GameObject mesh;
         public Material material;
         public string textureID;

@@ -27,21 +27,13 @@ namespace SpaceBudUI
     {
         private Label patientNameText;
 
-
         private Button checkInButton;
         private Button cancelButton;
 
-        [SerializeField] private GameEvent checkInComplete;
-        [SerializeField] private GameEvent canceledCheckIn;
-        [SerializeField] private GameEvent updateUI;
-
-       
         private PatientStateData currentStateManager;
         private NewPatientTimer currentPatienceTimer;
 
-
         [SerializeField] private NewPatientListObject newPatientList;
-    
         [SerializeField] private IntegerObject maxQueueListCountObject;
         [SerializeField] private IntegerObject queueListCountObj;
 
@@ -53,13 +45,10 @@ namespace SpaceBudUI
         {
             _panelSwitcher = GetComponent<PanelSwitcher>();
             _gameObject = gameObject;
-            
+            PatientSaleEventManager.OnPatientClick += OpenCheckInPrompt;
         }
-        private void Start()
-        {
-            this.gameObject.SetActive(false);
-        }
-        public void OnEnable()
+       
+        private void OnEnable()
         {
             _rootVisualElement = GetComponent<UIDocument>().rootVisualElement;
             checkInButton = _rootVisualElement.Q<Button>("add-to-queue-button");
@@ -70,40 +59,45 @@ namespace SpaceBudUI
             cancelButton.RegisterCallback<ClickEvent>(ev => ExitCheckInPrompt());
 
         }
+        private void OnApplicationQuit()
+        {
+            PatientSaleEventManager.OnPatientClick -= OpenCheckInPrompt;
+        }
+
+        private void Start()
+        {
+            gameObject.SetActive(false);
+        }
 
         public void OpenCheckInPrompt()
         {
             if (newPatientList.patientObjectsList != null && queueListCountObj.value < maxQueueListCountObject.value)
             {
-                Debug.Log("test");
-                
-                
+                PatientSaleEventManager.OpenedCheckInPrompt();
                 _panelSwitcher.SwitchPanels(_gameObject, true);
 
                 var activePatient = newPatientList.activePatient;
                 currentStateManager = activePatient.GetComponent<PatientStateData>();
-
                 currentPatienceTimer = activePatient.GetComponent<NewPatientTimer>();
+                
                 currentPatienceTimer.isTimerOn = false;
 
                 var patientName = activePatient.GetComponent<PatientInformationBase>().patientName;
                 
                 patientNameText.text = "Add " + patientName + " to queue?";
 
-
             }
             else
             {
                 Debug.Log("The queue is packed!");
             }
-
         }
 
         public void ExitCheckInPrompt()
         {
             currentPatienceTimer.isTimerOn = true;
             currentPatienceTimer.StartTimer();
-            canceledCheckIn.RaiseEvent();
+            PatientSaleEventManager.CanceledCheckIn();
             currentStateManager.SwitchState(SaleState.NewPatientState);
             _panelSwitcher.DeactivatePanel(_gameObject, true);
         }
@@ -111,8 +105,8 @@ namespace SpaceBudUI
         public void CompleteCheckIn()
         {
             queueListCountObj.value++;
-            checkInComplete.RaiseEvent();
-            updateUI.RaiseEvent();
+            PatientSaleEventManager.CheckInComplete();
+            UIEventsManager.GameOverlayNeedsUpdate();
             currentStateManager.SwitchState(SaleState.CheckedInState);
             _panelSwitcher.DeactivatePanel(_gameObject, true);
         }

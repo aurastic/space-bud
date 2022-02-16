@@ -21,7 +21,7 @@ using UnityEngine;
 
 namespace SpaceBudData
 {
-    public class PatientInformationBase : MonoBehaviour, PatientInformationManager
+    public class PatientInformationBase : MonoBehaviour, IHavePatientInformation
     {
         public string patientName;  //is there a way to make these both private and accessible by only what's needed?
         public StrainType favoriteStrain;
@@ -31,6 +31,7 @@ namespace SpaceBudData
         public string[] maleNames = new string[5] { "Jacob", "Dan", "William", "Nick", "Maxwell" };
         public int age;
         public GenderType gender;
+        public SpeciesType species;
 
         public string PatientName => patientName;
 
@@ -41,16 +42,16 @@ namespace SpaceBudData
         public int PatientAge => age;
 
         public GenderType GenderType => gender;
+        public SpeciesType SpeciesType => species;
 
         void OnEnable()
         {
-
             SetGender();
             SetName();
             SetAge();
             SetFavStrainType();
             SetPatientType();
-
+            SetSpeciesType();
         }
 
         void SetGender()
@@ -97,8 +98,10 @@ namespace SpaceBudData
             {
                 patientType = (PatientType)(Random.Range(0, values.Length - 1));  //this needs to be fixed, senior might not be last on the patient types list.
             }
-
-
+        }
+        void SetSpeciesType()
+        {
+            species = SpeciesType.Florb;
         }
     }
 }

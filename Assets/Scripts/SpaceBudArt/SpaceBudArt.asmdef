@@ -1,7 +1,9 @@
 {
     "name": "SpaceBudArt",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:ed15369ad9862d74ab72fdc88d5d1173"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
