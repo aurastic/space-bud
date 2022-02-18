@@ -25,7 +25,6 @@ namespace SpaceBudInteraction
 {
     public class InteractionController : MonoBehaviour
     {
-   
         private GameplayInputController controls;
         private CharacterController characterController;
         private Vector2 leftJoyValue;

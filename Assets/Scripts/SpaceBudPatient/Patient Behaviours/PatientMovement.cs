@@ -26,52 +26,59 @@ namespace SpaceBudPatient
     public class PatientMovement : MonoBehaviour
     {
         private NavMeshAgent patientAgent;
-        private WanderAI wanderWalk;
         private Vector3 shopExit;
         private PatientStateData stateManager;
         private int waitToDisappear;
+        [SerializeField] private PlaceHolderListObject listObject;
+        [SerializeField] private NewPatientListObject newPatientListObject;
 
         private void OnEnable()
         {
             waitToDisappear = 5;
             shopExit = new Vector3(-5.8f, 0.5f, 9.5f);
             patientAgent = gameObject.GetComponent<NavMeshAgent>();
-            wanderWalk = gameObject.GetComponent<WanderAI>();
+           
             stateManager = gameObject.GetComponent<PatientStateData>();
 
             PatientSaleEventManager.OnSaleStateChange += UpdateMovementType;
+            PatientSaleEventManager.OnCheckIn += MoveForwardInLine;
+            PatientSaleEventManager.PatientLeftEarly += MoveForwardMidLine;
+            
+
         }
 
         private void OnDisable()
         {
             PatientSaleEventManager.OnSaleStateChange -= UpdateMovementType;
+            PatientSaleEventManager.OnCheckIn -= MoveForwardInLine;
+            PatientSaleEventManager.PatientLeftEarly -= MoveForwardMidLine;
         }
 
         public void UpdateMovementType()
         {
             if (stateManager.currentState == SaleState.PendingCheckInState)
             {
-                wanderWalk.isWandering = false;
-                
+                patientAgent.isStopped = true;
+               
             }
 
             else if (stateManager.currentState == SaleState.NewPatientState)
             {
-                wanderWalk.isWandering = true;
-                wanderWalk.StartCoroutine(wanderWalk.WanderCoroutine());
+                
             }
 
             else if (stateManager.currentState == SaleState.CheckedInState)
             {
-                wanderWalk.isWandering = false;
+               
                 patientAgent.destination = new Vector3(0, 1, Random.Range(5, 7));
 
             }
 
             else if (stateManager.currentState == SaleState.LeavingState)
             {
-                wanderWalk.isWandering = false;
+                
                 patientAgent.destination = shopExit;
+
                 StartCoroutine(PatientLeavingCoroutine());
             }
         }
@@ -96,6 +103,42 @@ namespace SpaceBudPatient
             stateManager.SwitchState(SaleState.HiddenInPoolState);
             Debug.Log("Patient reached exit. Leaving.");
             gameObject.SetActive(false);
+        }
+
+        private void MoveForwardInLine()
+        {
+            var currentPlace = stateManager.currentPlaceInLine;
+
+            if (currentPlace > 0)
+            {
+                var newPlace = currentPlace --;
+
+                if (newPlace <= listObject.list.Count - 1)
+                {
+
+                    Debug.Log("Moving forward in line.");
+                    patientAgent.destination = listObject.list[newPlace].placeholderObject.transform.position;
+                }
+                
+            }
+            
+        }
+
+        private void MoveForwardMidLine(object sender, PatientSaleEventManager.IntegerEventArgs args)
+        {
+            if (stateManager.currentState == SaleState.NewPatientState)
+            {
+                var newPlace = newPatientListObject.patientObjectsList.LastIndexOf(gameObject);
+                stateManager.currentPlaceInLine = newPlace;
+                Debug.Log("new place: " + newPlace);
+
+                if (newPlace <= listObject.list.Count - 1 && newPlace <= 0)
+                    {
+                        Debug.Log("Moving forward in line.");
+                        patientAgent.SetDestination(listObject.list[newPlace].placeholderObject.transform.position);
+                    }
+
+            }
         }
     }
 }

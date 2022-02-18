@@ -32,7 +32,9 @@ namespace SpaceBudData
         [SerializeField] private IntegerObject newPatients;
         [SerializeField] private NewPatientListObject spawnedPatients;
         [SerializeField] private ActionLogObject logObject;
+        
         private PatientStateData stateManager;
+
 
         private void OnEnable()
         {
@@ -73,14 +75,17 @@ namespace SpaceBudData
             var actionLogEntry = new ActionLogEntry(5, LogEntryType.Review, "I've been waiting too long!!!! BYE ", ptName);
             logObject.actionLog.Add(actionLogEntry);
             newPatients.value--;
+
             spawnedPatients.patientObjectsList.Remove(gameObject);
             spawnedPatients.UpdateListData(spawnedPatients);
-            PatientSaleEventManager.PatientLeftEarly();
-            UIEventsManager.GameOverlayNeedsUpdate();
-            UIEventsManager.ActionLogNeedsUpdate();
             stateManager.SwitchState(SaleState.LeavingState);
+            var indexArg = new PatientSaleEventManager.IntegerEventArgs(stateManager.currentPlaceInLine);
+            PatientSaleEventManager.OnPatientLeftEarly(this, indexArg);
+            UIEventsManager.GameOverlayNeedsUpdate();
+            UIEventsManager.AddedToActionLog();
+            
            
-
+           
         }
 
         public void StartTimer()

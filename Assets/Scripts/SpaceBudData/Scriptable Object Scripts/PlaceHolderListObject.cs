@@ -15,37 +15,16 @@
 //You should have received a copy of the GNU General Public
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
 using UnityEngine;
-using SpaceBudCore;
+
 
 namespace SpaceBudData
 {
-    public enum SaleState
+    [CreateAssetMenu]
+    public class PlaceHolderListObject : ScriptableObject
     {
-        NewPatientState = 0,
-        PendingCheckInState = 1,
-        CheckedInState = 2,
-        SaleInProgressState = 3,
-        LeavingState = 4,
-        HiddenInPoolState = 5
-    }
-    public enum MoodState
-    {
-        Happy = 0,
-    }
-   
-    public class PatientStateData : MonoBehaviour
-    {
-        public SaleState currentState = SaleState.HiddenInPoolState;
-        public MoodState currentMood = MoodState.Happy;
-        public int currentPlaceInLine;
-        
-        public void SwitchState(SaleState state)
-        {
-            currentState = state;
-            PatientSaleEventManager.SaleStateChanged();
-
-        }
+        public List<PlaceHolderData> list;
     }
 }
 

@@ -19,6 +19,7 @@ using System.Collections;
 using UnityEngine;
 using SpaceBudData;
 using SpaceBudCore;
+using UnityEngine.AI;
 
 namespace SpaceBudPatient
 {
@@ -30,8 +31,10 @@ namespace SpaceBudPatient
 
         [SerializeField] private IntegerObject newPatientListMaxCount;
 
-        private int waitToSpawn = 20; 
+        [SerializeField] private PlaceHolderListObject listObject;
 
+        private int waitToSpawn = 3;
+        private int checkIndex;
         private readonly int minDownTime = 5;
         private readonly int maxDownTime = 10;
         private readonly float sB = -5f;
@@ -48,7 +51,7 @@ namespace SpaceBudPatient
         {
             if (newPatients.value < newPatientListMaxCount.value)
             {
-                Debug.Log("spawn possible. will spawn after random time.");
+                //Debug.Log("spawn possible. will spawn after random time.");
                 var time = Random.Range(minDownTime, maxDownTime);
                 Invoke("SpawnNewPatient", time);
             }
@@ -70,15 +73,28 @@ namespace SpaceBudPatient
                 patient.transform.SetPositionAndRotation(spawnLocation, Quaternion.identity);
                 patient.SetActive(true);
 
-                var patientCard = patient.GetComponent<PatientInformationBase>();
-                Debug.Log(patientCard.patientName + ", " + patientCard.gender + ", " + patientCard.age + ", " + patientCard.patientType + ", " + patientCard.favoriteStrain);
-
                 var patientStateManager = patient.GetComponent<PatientStateData>();
                 patientStateManager.SwitchState(SaleState.NewPatientState);
 
+                var patientCard = patient.GetComponent<PatientInformationBase>();
+                Debug.Log(patientCard.patientName + ", " + patientCard.gender + ", " + patientCard.age + ", " + patientCard.patientType + ", " + patientCard.favoriteStrain);
+
+                
                 var timer = patient.GetComponent<NewPatientTimer>();
                 timer.StartCoroutine(timer.PatientPatience());
+
+                var patientAgent = patient.GetComponent<NavMeshAgent>();
+                
                 spawnedPatients.patientObjectsList.Add(patient);
+                var place = spawnedPatients.patientObjectsList.LastIndexOf(patient);
+                patientStateManager.currentPlaceInLine = place;
+                Debug.Log(place.ToString() + " in line.");
+
+                if (place <= listObject.list.Count - 1)
+                {
+                    patientAgent.destination = listObject.list[place].placeholderObject.transform.position;
+                    
+                }
                 spawnedPatients.UpdateListData(spawnedPatients);
 
                 AddNewPatientValue();
@@ -95,17 +111,19 @@ namespace SpaceBudPatient
             }
         }
 
-        IEnumerator WaitToSpawn()
+      
+
+        private IEnumerator WaitToSpawn()
         {
             while (waitToSpawn >= 0)
             {
-                Debug.Log("spawn wait" + waitToSpawn);
+                //Debug.Log("spawn wait" + waitToSpawn);
                 waitToSpawn--;
                 yield return new WaitForSeconds(1);
             }
 
-            waitToSpawn = 20;
-            Debug.Log("sent request to start spawning if possible");
+            waitToSpawn = 3;
+            //Debug.Log("sent request to start spawning if possible");
             StartSpawning();
             yield break;
         }

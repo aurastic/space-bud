@@ -16,36 +16,21 @@
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
 using UnityEngine;
-using SpaceBudCore;
 
-namespace SpaceBudData
+
+public class LinePlaceHolderGizmo : MonoBehaviour
 {
-    public enum SaleState
+
+
+#if UNITY_EDITOR
+
+    private void OnDrawGizmos()
     {
-        NewPatientState = 0,
-        PendingCheckInState = 1,
-        CheckedInState = 2,
-        SaleInProgressState = 3,
-        LeavingState = 4,
-        HiddenInPoolState = 5
-    }
-    public enum MoodState
-    {
-        Happy = 0,
-    }
-   
-    public class PatientStateData : MonoBehaviour
-    {
-        public SaleState currentState = SaleState.HiddenInPoolState;
-        public MoodState currentMood = MoodState.Happy;
-        public int currentPlaceInLine;
+      
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, 1);
         
-        public void SwitchState(SaleState state)
-        {
-            currentState = state;
-            PatientSaleEventManager.SaleStateChanged();
-
-        }
     }
-}
+#endif
 
+}

@@ -16,36 +16,17 @@
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
 using UnityEngine;
-using SpaceBudCore;
 
-namespace SpaceBudData
+public class PlaceHolderData
 {
-    public enum SaleState
+    public GameObject placeholderObject;
+    public bool isOccupied;
+
+    public PlaceHolderData(GameObject obj)
     {
-        NewPatientState = 0,
-        PendingCheckInState = 1,
-        CheckedInState = 2,
-        SaleInProgressState = 3,
-        LeavingState = 4,
-        HiddenInPoolState = 5
+        this.placeholderObject = obj;
+        this.isOccupied = false;
     }
-    public enum MoodState
-    {
-        Happy = 0,
-    }
-   
-    public class PatientStateData : MonoBehaviour
-    {
-        public SaleState currentState = SaleState.HiddenInPoolState;
-        public MoodState currentMood = MoodState.Happy;
-        public int currentPlaceInLine;
         
-        public void SwitchState(SaleState state)
-        {
-            currentState = state;
-            PatientSaleEventManager.SaleStateChanged();
 
-        }
-    }
 }
-

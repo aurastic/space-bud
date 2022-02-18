@@ -16,6 +16,7 @@
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
 using System;
+using UnityEngine;
 
 namespace SpaceBudCore
 {
@@ -24,14 +25,13 @@ namespace SpaceBudCore
         public static event Action OnAddToActionLog;
         public static event Action OnGameOverlayUpdate;
 
-        public static void ActionLogNeedsUpdate()
-        {
-            OnAddToActionLog?.Invoke();
-        }
-        public static void GameOverlayNeedsUpdate()
-        {
-            OnGameOverlayUpdate?.Invoke();
-        }
+        public static void AddedToActionLog() => OnAddToActionLog?.Invoke();
+        
+
+        public static void GameOverlayNeedsUpdate() => OnGameOverlayUpdate?.Invoke();
+
+
+
     }
 }
 

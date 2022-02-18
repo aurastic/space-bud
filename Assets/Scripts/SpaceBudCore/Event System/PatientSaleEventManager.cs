@@ -16,6 +16,7 @@
 //License along with Space Bud. If not, see <https://www.gnu.org/licenses/>.
 
 using System;
+using UnityEngine;
 
 namespace SpaceBudCore
 {
@@ -26,38 +27,37 @@ namespace SpaceBudCore
         public static event Action OnCancelCheckIn;
         public static event Action OnOpenCheckInPrompt;
         public static event Action OnPatientClick;
-        public static event Action OnPatientLeftEarly;
-        public static event Action OnSaleStateChange;
 
-        public static void CheckInComplete()
-        {
-            OnCheckIn?.Invoke();
-        }
-        public static void CanceledCheckIn()
-        {
-            OnCancelCheckIn?.Invoke();
-        }
-        public static void OpenedCheckInPrompt()
-        {
-            OnOpenCheckInPrompt?.Invoke();
-        }
-        public static void ClickedOnPatient()
-        {
-            OnPatientClick?.Invoke();
-        }
+        public static event PatientLeftEarlyEventHandler PatientLeftEarly;
+        public delegate void PatientLeftEarlyEventHandler(object sender, IntegerEventArgs args);
+
+        public static event Action OnSaleStateChange;
         
-        public static void NewPatient()
+        public class IntegerEventArgs : EventArgs
         {
-            OnNewPatient?.Invoke();
+            public int Index { get; set; }
+
+            public IntegerEventArgs(int index)
+            {
+                Index = index;
+            }
         }
-        public static void PatientLeftEarly()
-        {
-            OnPatientLeftEarly?.Invoke();
-        }
-        public static void SaleStateChanged()
-        {
-            OnSaleStateChange?.Invoke();
-        }
+
+        public static void CheckInComplete() => OnCheckIn?.Invoke();
+       
+        public static void CanceledCheckIn() => OnCancelCheckIn?.Invoke();
+        
+        public static void OpenedCheckInPrompt() => OnOpenCheckInPrompt?.Invoke();
+
+        public static void ClickedOnPatient() => OnPatientClick?.Invoke();
+       
+        public static void NewPatient() => OnNewPatient?.Invoke();
+      
+        public static void OnPatientLeftEarly(UnityEngine.Object sender, IntegerEventArgs args) => PatientLeftEarly?.Invoke(sender, args);
+        
+        public static void SaleStateChanged() => OnSaleStateChange?.Invoke();
+      
+ 
     }
 }
 
