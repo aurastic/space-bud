@@ -1,4 +1,4 @@
-//Copyright © 2022 Alex Reid (R.M.P.)
+//Copyright ï¿½ 2022 Alex Reid (R.M.P.)
 
 //This file is part of Space Bud.
 
@@ -39,13 +39,22 @@ namespace SpaceBudData
         public SaleState currentState = SaleState.HiddenInPoolState;
         public MoodState currentMood = MoodState.Happy;
         public int currentPlaceInLine;
+        private PatientMovement movementManager;
+
+        private void OnEnable()
+        {
+            movementManager = GetComponent<PatientMovement>();
+            
+        }
         
         public void SwitchState(SaleState state)
         {
             currentState = state;
             PatientSaleEventManager.SaleStateChanged();
+            movementManager.UpdateMovement();
 
         }
+        
     }
 }
 

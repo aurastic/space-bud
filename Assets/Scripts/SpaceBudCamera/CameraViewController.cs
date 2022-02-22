@@ -32,6 +32,7 @@ namespace SpaceBudCamera
         private void Awake()
         {
             freeLook = GetComponent<CinemachineFreeLook>();
+
         }
 
         private void Start()

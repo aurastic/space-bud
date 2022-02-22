@@ -32,6 +32,9 @@ namespace SpaceBudData
         public int age;
         public GenderType gender;
         public SpeciesType species;
+        public int currentPlaceInLine;
+
+
 
         public string PatientName => patientName;
 
@@ -43,6 +46,7 @@ namespace SpaceBudData
 
         public GenderType GenderType => gender;
         public SpeciesType SpeciesType => species;
+        //public int CurrentPlaceInLine => currentPlaceInLine;
 
         void OnEnable()
         {

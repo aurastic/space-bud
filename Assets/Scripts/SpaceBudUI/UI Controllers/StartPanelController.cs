@@ -1,4 +1,4 @@
-//Copyright © 2022 Alex Reid (R.M.P.)
+//Copyright ï¿½ 2022 Alex Reid (R.M.P.)
 
 //This file is part of Space Bud.
 
@@ -27,12 +27,14 @@ public class StartPanelController : MonoBehaviour
     private Button startButton;
     private bool isGameSceneLoaded;
 
+
     private void OnEnable()
     {
         isGameSceneLoaded = false;
         startButton = GetComponent<UIDocument>().rootVisualElement.Q<Button>("new-game-button");
         startButton.RegisterCallback<PointerUpEvent>(ev => StartGame());
     }
+    
     private void StartGame()
     {
         if(!isGameSceneLoaded)

@@ -53,7 +53,6 @@ namespace SpaceBudUI
             queue.RegisterCallback<ClickEvent>(ev => _panelSwitcher.SwitchPanels(queuePanelObj, false));
             queue.RegisterCallback<ClickEvent>(ev => _panelSwitcher.DeactivatePanel(_gameObject, true));
             
-
             exit.RegisterCallback<ClickEvent>(ev => _panelSwitcher.DeactivatePanel(_gameObject, true));
         }
 

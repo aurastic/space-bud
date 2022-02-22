@@ -1,4 +1,4 @@
-//Copyright © 2022 Alex Reid (R.M.P.)
+//Copyright ï¿½ 2022 Alex Reid (R.M.P.)
 
 //This file is part of Space Bud.
 
@@ -32,13 +32,14 @@ namespace SpaceBudData
         [SerializeField] private IntegerObject newPatients;
         [SerializeField] private NewPatientListObject spawnedPatients;
         [SerializeField] private ActionLogObject logObject;
-        
+        private PatientInformationBase infoBase;
         private PatientStateData stateManager;
 
 
         private void OnEnable()
         {
-            patientName = gameObject.GetComponent<PatientInformationBase>().patientName;
+            infoBase = gameObject.GetComponent<PatientInformationBase>();
+            patientName = infoBase.patientName;
             stateManager = gameObject.GetComponent<PatientStateData>();
             patience = Random.Range(10, 60);
             
@@ -79,13 +80,11 @@ namespace SpaceBudData
             spawnedPatients.patientObjectsList.Remove(gameObject);
             spawnedPatients.UpdateListData(spawnedPatients);
             stateManager.SwitchState(SaleState.LeavingState);
-            var indexArg = new PatientSaleEventManager.IntegerEventArgs(stateManager.currentPlaceInLine);
+            var indexArg = new PatientSaleEventManager.IntegerEventArgs(infoBase.currentPlaceInLine, this.gameObject);
             PatientSaleEventManager.OnPatientLeftEarly(this, indexArg);
             UIEventsManager.GameOverlayNeedsUpdate();
             UIEventsManager.AddedToActionLog();
             
-           
-           
         }
 
         public void StartTimer()

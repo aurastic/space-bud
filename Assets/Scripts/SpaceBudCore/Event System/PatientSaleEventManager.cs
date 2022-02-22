@@ -1,4 +1,4 @@
-//Copyright © 2022 Alex Reid (R.M.P.)
+//Copyright ï¿½ 2022 Alex Reid (R.M.P.)
 
 //This file is part of Space Bud.
 
@@ -36,10 +36,13 @@ namespace SpaceBudCore
         public class IntegerEventArgs : EventArgs
         {
             public int Index { get; set; }
+            public GameObject Object {get; set;}
 
-            public IntegerEventArgs(int index)
+            public IntegerEventArgs(int index, GameObject obj)
             {
                 Index = index;
+                Object = obj;
+                
             }
         }
 

@@ -17,16 +17,16 @@
 
 using UnityEngine;
 using UnityEngine.AI;
-using SpaceBudData;
 using SpaceBudCore;
 using System.Collections;
 
-namespace SpaceBudPatient
+namespace SpaceBudData
 {
     public class PatientMovement : MonoBehaviour
     {
         private NavMeshAgent patientAgent;
         private Vector3 shopExit;
+        private PatientInformationBase patientInfo;
         private PatientStateData stateManager;
         private int waitToDisappear;
         [SerializeField] private PlaceHolderListObject listObject;
@@ -37,52 +37,58 @@ namespace SpaceBudPatient
             waitToDisappear = 5;
             shopExit = new Vector3(-5.8f, 0.5f, 9.5f);
             patientAgent = gameObject.GetComponent<NavMeshAgent>();
-           
+            patientInfo = gameObject.GetComponent<PatientInformationBase>();
             stateManager = gameObject.GetComponent<PatientStateData>();
-
-            PatientSaleEventManager.OnSaleStateChange += UpdateMovementType;
+            
             PatientSaleEventManager.OnCheckIn += MoveForwardInLine;
             PatientSaleEventManager.PatientLeftEarly += MoveForwardMidLine;
             
-
         }
 
         private void OnDisable()
         {
-            PatientSaleEventManager.OnSaleStateChange -= UpdateMovementType;
+           
             PatientSaleEventManager.OnCheckIn -= MoveForwardInLine;
             PatientSaleEventManager.PatientLeftEarly -= MoveForwardMidLine;
         }
 
-        public void UpdateMovementType()
+        private void MoveToWaitingRoom()
         {
-            if (stateManager.currentState == SaleState.PendingCheckInState)
-            {
-                patientAgent.isStopped = true;
-               
-            }
+            patientAgent.destination = new Vector3(0, 1, Random.Range(5, 7));
 
-            else if (stateManager.currentState == SaleState.NewPatientState)
-            {
-                
-            }
-
-            else if (stateManager.currentState == SaleState.CheckedInState)
-            {
-               
-                patientAgent.destination = new Vector3(0, 1, Random.Range(5, 7));
-
-            }
-
-            else if (stateManager.currentState == SaleState.LeavingState)
-            {
-                
-                patientAgent.destination = shopExit;
-
-                StartCoroutine(PatientLeavingCoroutine());
-            }
         }
 
+        private void Leave()
+        {
+            patientAgent.destination = shopExit;
+
+            StartCoroutine(PatientLeavingCoroutine());
+        }
+
+        private void Freeze()
+        {
+            patientAgent.isStopped = true;
+        }
+
+        public void UpdateMovement()
+        {
+            var currentState = stateManager.currentState;
+
+            if(currentState == SaleState.PendingCheckInState)
+            {
+               Freeze();
+            }
+            else if(currentState == SaleState.LeavingState)
+            {
+                Leave();
+            }
+            else if(currentState == SaleState.CheckedInState)
+            {
+                MoveToWaitingRoom();
+            }
+            
+        }
+        
         private IEnumerator PatientLeavingCoroutine()
         {
 
@@ -100,14 +106,13 @@ namespace SpaceBudPatient
         private void HidePatient()
         {
             StopAllCoroutines();
-            stateManager.SwitchState(SaleState.HiddenInPoolState);
             Debug.Log("Patient reached exit. Leaving.");
             gameObject.SetActive(false);
         }
 
         private void MoveForwardInLine()
         {
-            var currentPlace = stateManager.currentPlaceInLine;
+            var currentPlace = patientInfo.currentPlaceInLine;
 
             if (currentPlace > 0)
             {
